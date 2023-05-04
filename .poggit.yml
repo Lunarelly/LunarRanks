@@ -1,0 +1,9 @@
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/Lunarelly/LunarRanks
+build-by-default: true
+branches:
+- main
+projects:
+  LunarRanks:
+    path: ""
+    icon: "assets/icon.png"
+...
