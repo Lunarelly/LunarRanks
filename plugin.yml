@@ -1,0 +1,21 @@
+name: LunarRanks
+main: lunarelly\ranks\LunarRanksPlugin
+
+version: 1.0.0
+api: 4.0.0
+
+load: STARTUP
+
+description: Rank managment system
+prefix: LunarRanks
+
+author: Lunarelly
+website: https://github.com/Lunarelly
+
+permissions:
+  lunarranks.command.rank:
+    default: op
+    description: Rank command permission
+  lunarranks.notifications:
+    default: op
+    description: Rank updates notifications permission

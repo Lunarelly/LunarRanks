@@ -1,0 +1,58 @@
+# LunarRanks plugin config.
+
+settings:
+  default-rank: "player"
+  local-chat:
+    enabled: false
+    distance: 100
+    symbol: "!"
+    local-prefix: "§7[§bL§7]"
+    global-prefix: "§7[§6G§7]"
+
+# All the ranks should be in lower case.
+ranks:
+  player:
+    priority: 1
+    color: "§7"
+    display-name: "Player"
+    chat-format: "§f{NAME}: §7{MESSAGE}" # Available tags: {NAME}, {DISPLAY_NAME}, {MESSAGE}
+    name-tag: "§7{NAME}" # Available tags: {NAME}, {DISPLAY_NAME}, {PLATFORM}, {LINE}
+    alias: "default"
+    inheritance: []
+    permissions: []
+  owner:
+    priority: 100
+    color: "§4"
+    display-name: "Owner"
+    chat-format: "§l§4Owner§r §f{NAME}: §4{MESSAGE}" # Available tags: {NAME}, {DISPLAY_NAME}, {MESSAGE}
+    name-tag: "§l§4Owner§r §f{NAME}" # Available tags: {NAME}, {DISPLAY_NAME}, {PLATFORM}, {LINE}
+    alias: "own"
+    inheritance: []
+    permissions:
+      - "*"
+
+messages:
+  rank-command:
+    name: "rank"
+    description: "Change player's rank"
+    global-usage: "Usage: /rank <player> <rank>"
+    player-usage: "§eUsage: /rank <player> <rank>"
+    aliases: []
+    store-argument: "store" # Argument for store rank giving. (To avoid issues)
+  player:
+    rank-does-not-exist: "§cRank {RANK} doesn't exist!" # Available tags: {RANK}
+    cannot-change-self-rank: "§cYou can't change your own rank!"
+    cannot-change-player-rank: "§cYou can't change {PLAYER}'s rank!" # Available tags: {PLAYER}
+    cannot-set-this-rank: "§cYou can't set {RANK} rank!" # Available tags: {RANK}
+    player-already-have-that-rank: "§c{PLAYER}'s rank is already {RANK}" # Available tags: {PLAYER}, {RANK}
+    rank-changed: "§aYour rank have been changed to {RANK}!" # Available tags: {RANK}
+    rank-changed-another: "§aYou have changed {PLAYER}'s rank to {RANK}!" # Available tags: {PLAYER}, {RANK}
+    rank-change-notification: "§e{ISSUER} had set {TARGET}'s rank to {RANK}" # Available tags: {ISSUER}, {TARGET}, {RANK}
+  console:
+    rank-does-not-exist: "§cRank {RANK} doesn't exist!" # Available tags: {RANK}
+    cannot-change-player-rank-to-this: "§cYou can't change {PLAYER}'s rank to {RANK}!" # Available tags: {PLAYER}, {RANK}
+    player-already-have-that-rank: "§c{PLAYER}'s rank is already {RANK}" # Available tags: {PLAYER}, {RANK}
+    rank-changed-another: "§aYou have changed {PLAYER}'s rank to {RANK}!" # Available tags: {PLAYER}, {RANK}
+    rank-change-notification: "§e{ISSUER} had set {TARGET}'s rank to {RANK}" # Available tags: {ISSUER}, {TARGET}, {RANK}
+
+# Made with <3 by Lunarelly. (https://github.com/Lunarelly)
