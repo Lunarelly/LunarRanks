@@ -1,7 +1,7 @@
 name: LunarRanks
 main: lunarelly\ranks\LunarRanksPlugin
 
-version: 1.0.0
+version: 1.0.1
 api: 4.0.0
 
 load: STARTUP
