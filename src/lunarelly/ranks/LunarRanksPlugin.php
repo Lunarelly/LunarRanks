@@ -111,11 +111,12 @@ final class LunarRanksPlugin extends PluginBase
 
         $this->messages = $configData["messages"];
 
-        if (!(in_array($configData["settings"]["default-rank"], $this->rankList))) {
-            throw new RanksException(sprintf("Default rank '%s' does not exist", $configData["settings"]["default-rank"]));
+        $defaultRank = strtolower($configData["settings"]["default-rank"]);
+        if (!(in_array($defaultRank, $this->rankList))) {
+            throw new RanksException(sprintf("Default rank '%s' does not exist", $defaultRank));
         }
 
-        $this->defaultRank = $configData["settings"]["default-rank"];
+        $this->defaultRank = $defaultRank;
         $this->localChatEnabled = (bool)$configData["settings"]["local-chat"]["enabled"];
         $this->localChatSettings = $configData["settings"]["local-chat"];
     }
@@ -126,7 +127,7 @@ final class LunarRanksPlugin extends PluginBase
         $rankCommand = new RankCommand($this);
 
         $commandManager->addCommand($rankCommand);
-        $this->getServer()->getCommandMap()->register("lunarranks", $rankCommand);
+        $this->getServer()->getCommandMap()->register("ranks", $rankCommand);
     }
 
     private function registerListeners(): void
@@ -280,7 +281,7 @@ final class LunarRanksPlugin extends PluginBase
 
     public function getRankFromAlias(string $alias): string
     {
-        return !(array_key_exists(strtolower($alias), $this->getAliasesToRanks())) ? $alias : $this->getAliasesToRanks()[$alias];
+        return $this->getAliasesToRanks()[strtolower($alias)] ?? $alias;
     }
 
     public function getRank(Player $player): Rank
@@ -289,7 +290,7 @@ final class LunarRanksPlugin extends PluginBase
         $rank = $this->getRankFromDatabase($nickname);
         $rankData = $this->getRanks()[$rank];
 
-        return !(isset($this->playerRanks[$nickname])) ? new Rank(
+        return $this->playerRanks[$nickname] ?? new Rank(
             $rank,
             $rankData["priority"],
             $rankData["color"],
@@ -297,7 +298,7 @@ final class LunarRanksPlugin extends PluginBase
             $rankData["chat-format"],
             $rankData["name-tag"],
             $this->getRankPermissions($rank)
-        ) : $this->playerRanks[$nickname];
+        );
     }
 
     public function getRankFromDatabase(string $nickname): string

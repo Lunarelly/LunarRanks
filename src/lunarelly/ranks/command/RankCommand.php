@@ -23,8 +23,9 @@ use lunarelly\ranks\LunarRanksPlugin;
 use pocketmine\command\CommandSender;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\player\Player;
+use pocketmine\plugin\PluginOwned;
 
-final class RankCommand extends ExtendedCommand
+final class RankCommand extends ExtendedCommand implements PluginOwned
 {
     public function __construct(private LunarRanksPlugin $plugin)
     {
@@ -39,7 +40,7 @@ final class RankCommand extends ExtendedCommand
         parent::__construct($command["name"], $command["description"], $command["global-usage"], $command["aliases"]);
     }
 
-    public function getPlugin(): LunarRanksPlugin
+    public function getOwningPlugin(): LunarRanksPlugin
     {
         return $this->plugin;
     }
@@ -50,7 +51,7 @@ final class RankCommand extends ExtendedCommand
             return false;
         }
 
-        $plugin = $this->getPlugin();
+        $plugin = $this->getOwningPlugin();
         $messages = $plugin->getMessages();
         if ($sender instanceof Player) {
             if (empty($args) || !(isset($args[0])) || !(isset($args[1])) || count($args) < 2) {
