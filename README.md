@@ -30,8 +30,8 @@ ranks:
 # API
 - Example:
 ```php
-/** @var Ranks $rankManager */
-$rankManager = Server::getInstance()->getPluginManager()->getPlugin("Ranks");
+/** @var LunarRanksPlugin $rankManager */
+$rankManager = Server::getInstance()->getPluginManager()->getPlugin("LunarRanks");
 
 if ($rankManager !== null) {
     $player->sendMessage("Your rank: " . $rankManager->getRank($player)->getDisplayName());
