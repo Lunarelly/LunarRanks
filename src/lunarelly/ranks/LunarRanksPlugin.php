@@ -127,7 +127,7 @@ final class LunarRanksPlugin extends PluginBase
         $rankCommand = new RankCommand($this);
 
         $commandManager->addCommand($rankCommand);
-        $this->getServer()->getCommandMap()->register("ranks", $rankCommand);
+        $this->getServer()->getCommandMap()->register("lunarranks", $rankCommand);
     }
 
     private function registerListeners(): void
