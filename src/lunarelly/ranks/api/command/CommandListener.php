@@ -24,7 +24,7 @@ use pocketmine\player\Player;
 
 final class CommandListener implements Listener
 {
-    public function __construct(private CommandManager $commandManager)
+    public function __construct(private readonly CommandManager $commandManager)
     {
     }
 

@@ -24,7 +24,7 @@ final class CommandManager
     /** @var ExtendedCommand[] */
     private array $commands = [];
 
-    public function __construct(private PluginBase $plugin)
+    public function __construct(private readonly PluginBase $plugin)
     {
         $plugin->getServer()->getPluginManager()->registerEvents(new CommandListener($this), $plugin);
     }

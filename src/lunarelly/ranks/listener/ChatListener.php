@@ -37,7 +37,7 @@ final class ChatListener implements Listener
     private string $localPrefix = "";
     private string $globalPrefix = "";
 
-    public function __construct(private LunarRanksPlugin $plugin)
+    public function __construct(private readonly LunarRanksPlugin $plugin)
     {
         if ($this->plugin->isLocalChatEnabled()) {
             $settings = $this->plugin->getLocalChatSettings();
@@ -118,31 +118,34 @@ final class ChatListener implements Listener
         $player = $event->getPlayer();
         $plugin = $this->getPlugin();
         $message = trim($event->getMessage());
+        $recipients = $event->getRecipients();
 
+        $event->cancel();
         if ($plugin->isLocalChatEnabled()) {
             if ($message === $this->getSymbol()) {
-                $event->cancel();
                 return;
             }
 
             if ($message[0] !== $this->getSymbol()) {
-                $recipients = [];
-                foreach ($event->getRecipients() as $recipient) {
+                foreach ($recipients as $recipient) {
+                    $localFormat = $this->formatChat($player, $message, self::TYPE_LOCAL);
                     if ($recipient instanceof Player) {
                         if ($recipient->getLocation()->distance($player->getPosition()) <= $this->getLocalChatDistance()) {
-                            $recipients[] = $recipient;
+                            $recipient->sendMessage($localFormat);
                         }
                     } elseif ($recipient instanceof BroadcastLoggerForwarder) {
-                        $recipients[] = $recipient;
+                        $recipient->sendMessage($localFormat);
                     }
                 }
-                $event->setRecipients($recipients);
-                $event->setFormat($this->formatChat($player, $message, self::TYPE_LOCAL));
             } else {
-                $event->setFormat($this->formatChat($player, $message, self::TYPE_GLOBAL));
+                foreach ($recipients as $recipient) {
+                    $recipient->sendMessage($this->formatChat($player, $message, self::TYPE_GLOBAL));
+                }
             }
         } else {
-            $event->setFormat($this->formatChat($player, $message));
+            foreach ($recipients as $recipient) {
+                $recipient->sendMessage($this->formatChat($player, $message));
+            }
         }
     }
 }

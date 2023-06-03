@@ -25,7 +25,7 @@ use pocketmine\event\player\PlayerQuitEvent;
 
 final class RankListener implements Listener
 {
-    public function __construct(private LunarRanksPlugin $plugin)
+    public function __construct(private readonly LunarRanksPlugin $plugin)
     {
     }
 

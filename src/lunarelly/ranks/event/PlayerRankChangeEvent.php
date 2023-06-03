@@ -23,7 +23,7 @@ use pocketmine\player\Player;
 
 class PlayerRankChangeEvent extends PlayerEvent
 {
-    public function __construct(Player $player, private Rank $oldRank)
+    public function __construct(Player $player, private readonly Rank $oldRank)
     {
         $this->player = $player;
     }

@@ -27,7 +27,7 @@ use pocketmine\plugin\PluginOwned;
 
 final class RankCommand extends ExtendedCommand implements PluginOwned
 {
-    public function __construct(private LunarRanksPlugin $plugin)
+    public function __construct(private readonly LunarRanksPlugin $plugin)
     {
         $this->setPermission("lunarranks.command.rank");
 

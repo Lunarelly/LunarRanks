@@ -20,13 +20,13 @@ namespace lunarelly\ranks\object;
 class Rank
 {
     public function __construct(
-        private string $name,
-        private int $priority,
-        private string $color,
-        private string $displayName,
-        private string $chatFormat,
-        private string $nameTag,
-        private array $permissions
+        private readonly string $name,
+        private readonly int $priority,
+        private readonly string $color,
+        private readonly string $displayName,
+        private readonly string $chatFormat,
+        private readonly string $nameTag,
+        private readonly array $permissions
     ) {}
 
     public function getName(): string
