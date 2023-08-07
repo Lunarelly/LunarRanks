@@ -1,5 +1,5 @@
 name: LunarRanks
-main: lunarelly\ranks\LunarRanksPlugin
+main: lunarelly\ranks\LunarRanks
 
 version: 2.1.0
 api: 5.0.0
