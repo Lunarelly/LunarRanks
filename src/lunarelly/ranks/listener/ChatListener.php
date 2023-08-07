@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace lunarelly\ranks\listener;
 
 use lunarelly\ranks\event\PlayerRankChangeEvent;
-use lunarelly\ranks\LunarRanksPlugin;
+use lunarelly\ranks\LunarRanks;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\event\player\PlayerJoinEvent;
@@ -28,124 +28,117 @@ use pocketmine\utils\TextFormat;
 
 final class ChatListener implements Listener
 {
-    private const TYPE_DEFAULT = 0;
-    private const TYPE_LOCAL = 1;
-    private const TYPE_GLOBAL = 2;
+	private int $localChatDistance = 0;
+	private string $symbol = "";
+	private string $localPrefix = "";
+	private string $globalPrefix = "";
 
-    private int $localChatDistance = 0;
-    private string $symbol = "";
-    private string $localPrefix = "";
-    private string $globalPrefix = "";
+	public function __construct(private readonly LunarRanks $plugin)
+	{
+		if ($this->plugin->isLocalChatEnabled()) {
+			$settings = $this->plugin->getLocalChatSettings();
+			$this->localChatDistance = (int)$settings["distance"];
+			$this->symbol = (string)$settings["symbol"];
+			$this->localPrefix = (string)$settings["local-prefix"];
+			$this->globalPrefix = (string)$settings["global-prefix"];
+		}
+	}
 
-    public function __construct(private readonly LunarRanksPlugin $plugin)
-    {
-        if ($this->plugin->isLocalChatEnabled()) {
-            $settings = $this->plugin->getLocalChatSettings();
-            $this->localChatDistance = (int)$settings["distance"];
-            $this->symbol = $settings["symbol"];
-            $this->localPrefix = $settings["local-prefix"];
-            $this->globalPrefix = $settings["global-prefix"];
-        }
-    }
+	private function getPlugin(): LunarRanks
+	{
+		return $this->plugin;
+	}
 
-    private function getPlugin(): LunarRanksPlugin
-    {
-        return $this->plugin;
-    }
+	private function getLocalChatDistance(): int
+	{
+		return $this->localChatDistance;
+	}
 
-    private function getLocalChatDistance(): int
-    {
-        return $this->localChatDistance;
-    }
+	private function getSymbol(): string
+	{
+		return $this->symbol;
+	}
 
-    public function getSymbol(): string
-    {
-        return $this->symbol;
-    }
+	private function getLocalPrefix(): string
+	{
+		return $this->localPrefix;
+	}
 
-    private function getLocalPrefix(): string
-    {
-        return $this->localPrefix;
-    }
+	private function getGlobalPrefix(): string
+	{
+		return $this->globalPrefix;
+	}
 
-    private function getGlobalPrefix(): string
-    {
-        return $this->globalPrefix;
-    }
+	/** @noinspection PhpUnused */
+	public function handlePlayerJoin(PlayerJoinEvent $event): void
+	{
+		$this->getPlugin()->updateNameTag($event->getPlayer());
+	}
 
-    private function formatChat(Player $player, string $message, int $type = self::TYPE_DEFAULT): string
-    {
-        $plugin = $this->getPlugin();
+	/** @noinspection PhpUnused */
+	public function handleRankChange(PlayerRankChangeEvent $event): void
+	{
+		$this->getPlugin()->updateNameTag($event->getPlayer());
+	}
 
-        if ($type === self::TYPE_DEFAULT) {
-            return str_replace(
-                ["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
-                [$player->getName(), $player->getDisplayName(), TextFormat::clean($message)],
-                $plugin->getRank($player)->getChatFormat()
-            );
-        } elseif ($type === self::TYPE_LOCAL) {
-            return $this->getLocalPrefix() . " " . str_replace(
-                ["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
-                [$player->getName(), $player->getDisplayName(), TextFormat::clean($message)],
-                $plugin->getRank($player)->getChatFormat()
-            );
-        } elseif ($type === self::TYPE_GLOBAL) {
-            return $this->getGlobalPrefix() . " " . str_replace(
-                ["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
-                [$player->getName(), $player->getDisplayName(), TextFormat::clean(str_ireplace("!", "", $message))],
-                $plugin->getRank($player)->getChatFormat()
-            );
-        } else {
-            return "???";
-        }
-    }
+	private function formatChat(Player $player, string $message, ChatType $type = ChatType::Default): string
+	{
+		return match ($type) {
+			ChatType::Default => str_replace(
+				["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
+				[$player->getName(), $player->getDisplayName(), TextFormat::clean($message)],
+				$this->getPlugin()->getRank($player)->getChatFormat()
+			),
+			ChatType::Local => $this->getLocalPrefix() . " " . str_replace(
+					["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
+					[$player->getName(), $player->getDisplayName(), TextFormat::clean($message)],
+					$this->getPlugin()->getRank($player)->getChatFormat()
+				),
+			ChatType::Global => $this->getGlobalPrefix() . " " . str_replace(
+					["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
+					[$player->getName(), $player->getDisplayName(), TextFormat::clean(str_replace("!", "", $message))],
+					$this->getPlugin()->getRank($player)->getChatFormat()
+				)
+		};
+	}
 
-    /** @noinspection PhpUnused */
-    public function handlePlayerJoin(PlayerJoinEvent $event): void
-    {
-        $this->getPlugin()->updateNameTag($event->getPlayer());
-    }
+	/**
+	 * @priority HIGHEST
+	 * @noinspection PhpUnused
+	 */
+	public function handlePlayerChat(PlayerChatEvent $event): void
+	{
+		$player = $event->getPlayer();
+		$plugin = $this->getPlugin();
+		$message = trim($event->getMessage());
+		$recipients = $event->getRecipients();
 
-    /** @noinspection PhpUnused */
-    public function handleRankChange(PlayerRankChangeEvent $event): void
-    {
-        $this->getPlugin()->updateNameTag($event->getPlayer());
-    }
+		$event->cancel();
+		if ($plugin->isLocalChatEnabled()) {
+			if ($message === $this->getSymbol()) {
+				return;
+			}
 
-    /** @noinspection PhpUnused */
-    public function handlePlayerChat(PlayerChatEvent $event): void
-    {
-        $player = $event->getPlayer();
-        $plugin = $this->getPlugin();
-        $message = trim($event->getMessage());
-        $recipients = $event->getRecipients();
-
-        $event->cancel();
-        if ($plugin->isLocalChatEnabled()) {
-            if ($message === $this->getSymbol()) {
-                return;
-            }
-
-            if ($message[0] !== $this->getSymbol()) {
-                foreach ($recipients as $recipient) {
-                    $localFormat = $this->formatChat($player, $message, self::TYPE_LOCAL);
-                    if ($recipient instanceof Player) {
-                        if ($recipient->getLocation()->distance($player->getPosition()) <= $this->getLocalChatDistance()) {
-                            $recipient->sendMessage($localFormat);
-                        }
-                    } elseif ($recipient instanceof BroadcastLoggerForwarder) {
-                        $recipient->sendMessage($localFormat);
-                    }
-                }
-            } else {
-                foreach ($recipients as $recipient) {
-                    $recipient->sendMessage($this->formatChat($player, $message, self::TYPE_GLOBAL));
-                }
-            }
-        } else {
-            foreach ($recipients as $recipient) {
-                $recipient->sendMessage($this->formatChat($player, $message));
-            }
-        }
-    }
+			if ($message[0] !== $this->getSymbol()) {
+				foreach ($recipients as $recipient) {
+					$localFormat = $this->formatChat($player, $message, ChatType::Local);
+					if ($recipient instanceof Player) {
+						if ($recipient->getLocation()->distance($player->getPosition()) <= $this->getLocalChatDistance()) {
+							$recipient->sendMessage($localFormat);
+						}
+					} elseif ($recipient instanceof BroadcastLoggerForwarder) {
+						$recipient->sendMessage($localFormat);
+					}
+				}
+			} else {
+				foreach ($recipients as $recipient) {
+					$recipient->sendMessage($this->formatChat($player, $message, ChatType::Global));
+				}
+			}
+		} else {
+			foreach ($recipients as $recipient) {
+				$recipient->sendMessage($this->formatChat($player, $message));
+			}
+		}
+	}
 }

@@ -21,32 +21,32 @@ use pocketmine\plugin\PluginBase;
 
 final class CommandManager
 {
-    /** @var ExtendedCommand[] */
-    private array $commands = [];
+	/** @var ExtendedCommand[] */
+	private array $commands = [];
 
-    public function __construct(private readonly PluginBase $plugin)
-    {
-        $plugin->getServer()->getPluginManager()->registerEvents(new CommandListener($this), $plugin);
-    }
+	public function __construct(private readonly PluginBase $plugin)
+	{
+		$plugin->getServer()->getPluginManager()->registerEvents(new CommandListener($this), $plugin);
+	}
 
-    public function getPlugin(): PluginBase
-    {
-        return $this->plugin;
-    }
+	public function getPlugin(): PluginBase
+	{
+		return $this->plugin;
+	}
 
-    public function getCommands(): array
-    {
-        return $this->commands;
-    }
+	public function getCommands(): array
+	{
+		return $this->commands;
+	}
 
-    public function addCommand(ExtendedCommand $command): void
-    {
-        $this->commands[] = $command;
-    }
+	/** @var ExtendedCommand[] $commands */
+	public function setCommands(array $commands): void
+	{
+		$this->commands = $commands;
+	}
 
-    /** @var ExtendedCommand[] $commands */
-    public function setCommands(array $commands): void
-    {
-        $this->commands = $commands;
-    }
+	public function addCommand(ExtendedCommand $command): void
+	{
+		$this->commands[] = $command;
+	}
 }

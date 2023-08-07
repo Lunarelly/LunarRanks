@@ -21,10 +21,10 @@ use pocketmine\command\Command;
 
 abstract class ExtendedCommand extends Command
 {
-    protected ?CommandArgs $commandArg = null;
+	protected ?CommandArgs $commandArg = null;
 
-    public function getCommandArg(): ?CommandArgs
-    {
-        return $this->commandArg;
-    }
+	public function getCommandArg(): ?CommandArgs
+	{
+		return $this->commandArg;
+	}
 }

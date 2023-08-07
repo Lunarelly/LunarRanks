@@ -19,48 +19,48 @@ namespace lunarelly\ranks\object;
 
 class Rank
 {
-    public function __construct(
-        private readonly string $name,
-        private readonly int $priority,
-        private readonly string $color,
-        private readonly string $displayName,
-        private readonly string $chatFormat,
-        private readonly string $nameTag,
-        private readonly array $permissions
-    ) {}
+	public function __construct(
+		private readonly string $name,
+		private readonly int $priority,
+		private readonly string $color,
+		private readonly string $displayName,
+		private readonly string $chatFormat,
+		private readonly string $nameTag,
+		private readonly array $permissions
+	) {}
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
+	public function getName(): string
+	{
+		return $this->name;
+	}
 
-    public function getPriority(): int
-    {
-        return $this->priority;
-    }
+	public function getPriority(): int
+	{
+		return $this->priority;
+	}
 
-    public function getColor(): string
-    {
-        return $this->color;
-    }
+	public function getColor(): string
+	{
+		return $this->color;
+	}
 
-    public function getDisplayName(): string
-    {
-        return $this->displayName;
-    }
+	public function getDisplayName(): string
+	{
+		return $this->displayName;
+	}
 
-    public function getChatFormat(): string
-    {
-        return $this->chatFormat;
-    }
+	public function getChatFormat(): string
+	{
+		return $this->chatFormat;
+	}
 
-    public function getNameTag(): string
-    {
-        return $this->nameTag;
-    }
+	public function getNameTag(): string
+	{
+		return $this->nameTag;
+	}
 
-    public function getPermissions(): array
-    {
-        return $this->permissions;
-    }
+	public function getPermissions(): array
+	{
+		return $this->permissions;
+	}
 }
