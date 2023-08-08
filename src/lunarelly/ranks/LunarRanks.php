@@ -17,11 +17,12 @@ declare(strict_types=1);
 
 namespace lunarelly\ranks;
 
+use LevelDB;
 use lunarelly\ranks\api\command\CommandManager;
 use lunarelly\ranks\command\RankCommand;
 use lunarelly\ranks\event\PlayerRankChangeEvent;
 use lunarelly\ranks\exception\RanksException;
-use lunarelly\ranks\listener\ChatListener;
+use lunarelly\ranks\listener\chat\ChatListener;
 use lunarelly\ranks\listener\RankListener;
 use lunarelly\ranks\object\Rank;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
@@ -29,8 +30,6 @@ use pocketmine\permission\PermissionAttachment;
 use pocketmine\permission\PermissionManager;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
-
-use LevelDB;
 
 final class LunarRanks extends PluginBase
 {

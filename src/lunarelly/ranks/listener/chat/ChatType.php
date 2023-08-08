@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-namespace lunarelly\ranks\listener;
+namespace lunarelly\ranks\listener\chat;
 
 enum ChatType
 {
