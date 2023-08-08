@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 namespace lunarelly\ranks;
 
-use LevelDB;
 use lunarelly\ranks\api\command\CommandManager;
 use lunarelly\ranks\command\RankCommand;
 use lunarelly\ranks\event\PlayerRankChangeEvent;
@@ -30,6 +29,8 @@ use pocketmine\permission\PermissionAttachment;
 use pocketmine\permission\PermissionManager;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
+
+use LevelDB;
 
 final class LunarRanks extends PluginBase
 {
