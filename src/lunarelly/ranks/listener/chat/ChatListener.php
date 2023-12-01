@@ -71,7 +71,7 @@ final class ChatListener implements Listener
 				),
 			ChatType::Global => $this->globalPrefix . " " . str_replace(
 					["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
-					[$player->getName(), $player->getDisplayName(), TextFormat::clean(str_replace($this->globalSymbol, "", $message))],
+					[$player->getName(), $player->getDisplayName(), TextFormat::clean(substr($message, 1))],
 					$this->plugin->getRank($player)->getChatFormat()
 				)
 		};
@@ -96,7 +96,11 @@ final class ChatListener implements Listener
 				return;
 			}
 
-			if ($message[0] !== $this->globalSymbol) {
+			if (str_starts_with($message, $this->globalSymbol)) {
+				foreach ($recipients as $recipient) {
+					$recipient->sendMessage($this->formatChat($player, $message, ChatType::Global));
+				}
+			} else {
 				foreach ($recipients as $recipient) {
 					$localFormat = $this->formatChat($player, $message, ChatType::Local);
 					if ($recipient instanceof Player) {
@@ -106,10 +110,6 @@ final class ChatListener implements Listener
 					} elseif ($recipient instanceof BroadcastLoggerForwarder) {
 						$recipient->sendMessage($localFormat);
 					}
-				}
-			} else {
-				foreach ($recipients as $recipient) {
-					$recipient->sendMessage($this->formatChat($player, $message, ChatType::Global));
 				}
 			}
 		} else {
