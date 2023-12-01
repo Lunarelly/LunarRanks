@@ -38,7 +38,6 @@ final class LunarRanks extends PluginBase
 
 	private LevelDB $database;
 
-	private array $settings;
 	private array $ranks;
 	private array $rankList;
 	private array $rankInheritances;
@@ -101,7 +100,6 @@ final class LunarRanks extends PluginBase
 	private function initializeConfigData(): void
 	{
 		$configData = $this->getConfig()->getAll();
-		$this->settings = $configData["settings"];
 		$this->ranks = $configData["ranks"];
 		$this->rankList = array_keys($configData["ranks"]);
 
@@ -152,40 +150,9 @@ final class LunarRanks extends PluginBase
 		return self::$instance;
 	}
 
-	/** @internal */
-	public function getDatabase(): LevelDB
-	{
-		return $this->database;
-	}
-
-	public function getSettings(): array
-	{
-		return $this->settings;
-	}
-
-	public function getRanks(): array
-	{
-		return $this->ranks;
-	}
-
 	public function getRankList(): array
 	{
 		return $this->rankList;
-	}
-
-	public function getRankInheritances(): array
-	{
-		return $this->rankInheritances;
-	}
-
-	public function getPermissions(): array
-	{
-		return $this->permissions;
-	}
-
-	public function getAliasesToRanks(): array
-	{
-		return $this->aliasesToRanks;
 	}
 
 	public function getMessages(): array
@@ -200,7 +167,7 @@ final class LunarRanks extends PluginBase
 
 	public function doesRankExist(string $rank): bool
 	{
-		return in_array(strtolower($rank), $this->getRankList(), true);
+		return in_array(strtolower($rank), $this->rankList, true);
 	}
 
 	public function isDefaultRank(string $rank): bool
@@ -208,8 +175,7 @@ final class LunarRanks extends PluginBase
 		if (!($this->doesRankExist($rank))) {
 			throw new RanksException(sprintf("Rank '%s' does not exist", $rank));
 		}
-
-		return strtolower($rank) === $this->getDefaultRank();
+		return strtolower($rank) === $this->defaultRank;
 	}
 
 	public function isLocalChatEnabled(): bool
@@ -227,8 +193,7 @@ final class LunarRanks extends PluginBase
 		if (!($this->doesRankExist($rank))) {
 			throw new RanksException(sprintf("Rank '%s' does not exist", $rank));
 		}
-
-		return (int)$this->getRanks()[strtolower($rank)]["priority"];
+		return (int)$this->ranks[strtolower($rank)]["priority"];
 	}
 
 	public function getRankColor(string $rank): string
@@ -236,8 +201,7 @@ final class LunarRanks extends PluginBase
 		if (!($this->doesRankExist($rank))) {
 			throw new RanksException(sprintf("Rank '%s' does not exist", $rank));
 		}
-
-		return $this->getRanks()[strtolower($rank)]["color"];
+		return $this->ranks[strtolower($rank)]["color"];
 	}
 
 	public function getRankDisplayName(string $rank): string
@@ -245,8 +209,7 @@ final class LunarRanks extends PluginBase
 		if (!($this->doesRankExist($rank))) {
 			throw new RanksException(sprintf("Rank '%s' does not exist", $rank));
 		}
-
-		return $this->getRanks()[strtolower($rank)]["display-name"];
+		return $this->ranks[strtolower($rank)]["display-name"];
 	}
 
 	public function getRankChatFormat(string $rank): string
@@ -254,8 +217,7 @@ final class LunarRanks extends PluginBase
 		if (!($this->doesRankExist($rank))) {
 			throw new RanksException(sprintf("Rank '%s' does not exist", $rank));
 		}
-
-		return $this->getRanks()[strtolower($rank)]["chat-format"];
+		return $this->ranks[strtolower($rank)]["chat-format"];
 	}
 
 	public function getRankNameTag(string $rank): string
@@ -263,8 +225,7 @@ final class LunarRanks extends PluginBase
 		if (!($this->doesRankExist($rank))) {
 			throw new RanksException(sprintf("Rank '%s' does not exist", $rank));
 		}
-
-		return $this->getRanks()[strtolower($rank)]["name-tag"];
+		return $this->ranks[strtolower($rank)]["name-tag"];
 	}
 
 	public function getRankPermissions(string $rank): array
@@ -272,20 +233,37 @@ final class LunarRanks extends PluginBase
 		if (!($this->doesRankExist($rank))) {
 			throw new RanksException(sprintf("Rank '%s' does not exist", $rank));
 		}
+		return $this->permissions[strtolower($rank)];
+	}
 
-		return $this->getPermissions()[strtolower($rank)];
+	public function getRankByName(string $rank): Rank
+	{
+		if (!($this->doesRankExist($rank))) {
+			throw new RanksException(sprintf("Rank '%s' does not exist", $rank));
+		}
+		$rankName = strtolower($rank);
+		$rankData = $this->ranks[$rankName];
+		return new Rank(
+			$rankName,
+			$rankData["priority"],
+			$rankData["color"],
+			$rankData["display-name"],
+			$rankData["chat-format"],
+			$rankData["name-tag"],
+			$this->getRankPermissions($rankName)
+		);
 	}
 
 	public function getRankFromAlias(string $alias): string
 	{
-		return $this->getAliasesToRanks()[strtolower($alias)] ?? $alias;
+		return $this->aliasesToRanks[strtolower($alias)] ?? $alias;
 	}
 
 	public function getRank(Player $player): Rank
 	{
 		$nickname = strtolower($player->getName());
 		$rank = $this->getRankFromDatabase($nickname);
-		$rankData = $this->getRanks()[$rank];
+		$rankData = $this->ranks[$rank];
 
 		return $this->playerRanks[$nickname] ?? new Rank(
 			$rank,
@@ -300,8 +278,8 @@ final class LunarRanks extends PluginBase
 
 	public function getRankFromDatabase(string $nickname): string
 	{
-		$rank = $this->getDatabase()->get(strtolower($nickname));
-		return $rank !== false ? $rank : $this->getDefaultRank();
+		$rank = $this->database->get(strtolower($nickname));
+		return $rank !== false ? $rank : $this->defaultRank;
 	}
 
 	public function setRank(Player $player, string $rank): void
@@ -314,19 +292,16 @@ final class LunarRanks extends PluginBase
 		$nickname = strtolower($player->getName());
 		$oldRank = $this->getRank($player);
 
-		$database = $this->getDatabase();
-		if ($database->get($nickname) !== false) {
-			$database->delete($nickname);
+		if ($this->database->get($nickname) !== false) {
+			$this->database->delete($nickname);
 		}
 
 		if (!($this->isDefaultRank($rank))) {
-			$database->put($nickname, $rank);
+			$this->database->put($nickname, $rank);
 		}
 
 		$this->addRank($player, $rank);
-
-		$event = new PlayerRankChangeEvent($player, $oldRank);
-		$event->call();
+		(new PlayerRankChangeEvent($player, $oldRank))->call();
 	}
 
 	public function setRankOffline(string $nickname, string $rank): void
@@ -338,13 +313,12 @@ final class LunarRanks extends PluginBase
 		$rank = strtolower($rank);
 		$nickname = strtolower($nickname);
 
-		$database = $this->getDatabase();
-		if ($database->get($nickname) !== false) {
-			$database->delete($nickname);
+		if ($this->database->get($nickname) !== false) {
+			$this->database->delete($nickname);
 		}
 
 		if (!($this->isDefaultRank($rank))) {
-			$database->put($nickname, $rank);
+			$this->database->put($nickname, $rank);
 		}
 	}
 
@@ -357,8 +331,7 @@ final class LunarRanks extends PluginBase
 		}
 
 		$this->removeRank($player);
-
-		$rankData = $this->getRanks()[$rankName];
+		$rankData = $this->ranks[$rankName];
 		$this->playerRanks[strtolower($player->getName())] = new Rank(
 			$rankName,
 			$rankData["priority"],
@@ -386,7 +359,6 @@ final class LunarRanks extends PluginBase
 		if (!(isset($this->attachments[$nickname]))) {
 			throw new RanksException(sprintf("Player '%s' has no PermissionAttachment?", $nickname));
 		}
-
 		return $this->attachments[$nickname];
 	}
 
@@ -424,19 +396,17 @@ final class LunarRanks extends PluginBase
 	/** @internal */
 	public function notifyRankChange(string $issuer, string $target, string $rank): void
 	{
-		$messages = $this->getMessages();
 		foreach ($this->getServer()->getOnlinePlayers() as $player) {
 			if ($player->hasPermission("lunarranks.notifications")) {
-				$player->sendMessage(str_replace(["{ISSUER}", "{TARGET}", "{RANK}"], [$issuer, $target, $rank], $messages["player"]["rank-change-notification"]));
+				$player->sendMessage(str_replace(["{ISSUER}", "{TARGET}", "{RANK}"], [$issuer, $target, $rank], $this->messages["player"]["rank-change-notification"]));
 			}
 		}
-		$this->getLogger()->info(str_replace(["{ISSUER}", "{TARGET}", "{RANK}"], [$issuer, $target, $rank], $messages["console"]["rank-change-notification"]));
+		$this->getLogger()->info(str_replace(["{ISSUER}", "{TARGET}", "{RANK}"], [$issuer, $target, $rank], $this->messages["console"]["rank-change-notification"]));
 	}
 
 	public function getPlatform(Player $player): string
 	{
 		$extraData = $player->getPlayerInfo()->getExtraData();
-
 		if ($extraData["DeviceOS"] === DeviceOS::ANDROID && $extraData["DeviceModel"] === "") {
 			return "Linux";
 		}

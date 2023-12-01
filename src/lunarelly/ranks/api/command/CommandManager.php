@@ -17,21 +17,16 @@ declare(strict_types=1);
 
 namespace lunarelly\ranks\api\command;
 
-use pocketmine\plugin\PluginBase;
+use pocketmine\plugin\Plugin;
 
 final class CommandManager
 {
 	/** @var ExtendedCommand[] */
 	private array $commands = [];
 
-	public function __construct(private readonly PluginBase $plugin)
+	public function __construct(Plugin $plugin)
 	{
 		$plugin->getServer()->getPluginManager()->registerEvents(new CommandListener($this), $plugin);
-	}
-
-	public function getPlugin(): PluginBase
-	{
-		return $this->plugin;
 	}
 
 	public function getCommands(): array

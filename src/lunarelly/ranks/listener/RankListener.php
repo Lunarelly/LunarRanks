@@ -29,11 +29,6 @@ final class RankListener implements Listener
 	{
 	}
 
-	public function getPlugin(): LunarRanks
-	{
-		return $this->plugin;
-	}
-
 	/**
 	 * @priority LOWEST
 	 * @noinspection PhpUnused
@@ -41,17 +36,16 @@ final class RankListener implements Listener
 	public function handlePlayerJoin(PlayerJoinEvent $event): void
 	{
 		$player = $event->getPlayer();
-		$plugin = $this->getPlugin();
-		$rank = $plugin->getRankFromDatabase($player->getName());
+		$rank = $this->plugin->getRankFromDatabase($player->getName());
 
-		if ($plugin->doesRankExist($rank)) {
-			$plugin->addRank($player, $rank);
+		if ($this->plugin->doesRankExist($rank)) {
+			$this->plugin->addRank($player, $rank);
 		} else {
-			$plugin->setRank($player, $plugin->getDefaultRank());
+			$this->plugin->setRank($player, $this->plugin->getDefaultRank());
 		}
 
-		$plugin->setAttachment($player, $player->addAttachment($plugin));
-		$plugin->updatePermissions($player);
+		$this->plugin->setAttachment($player, $player->addAttachment($this->plugin));
+		$this->plugin->updatePermissions($player);
 	}
 
 	/**
@@ -60,7 +54,7 @@ final class RankListener implements Listener
 	 */
 	public function handlePlayerRankChange(PlayerRankChangeEvent $event): void
 	{
-		$this->getPlugin()->updatePermissions($event->getPlayer());
+		$this->plugin->updatePermissions($event->getPlayer());
 	}
 
 	/**
@@ -70,9 +64,7 @@ final class RankListener implements Listener
 	public function handlePlayerQuit(PlayerQuitEvent $event): void
 	{
 		$player = $event->getPlayer();
-		$plugin = $this->getPlugin();
-
-		$plugin->removeRank($player);
-		$plugin->removeAttachment($player);
+		$this->plugin->removeRank($player);
+		$this->plugin->removeAttachment($player);
 	}
 }

@@ -35,7 +35,7 @@ final class CommandListener implements Listener
 				foreach ($event->getTargets() as $target) {
 					$player = $target->getPlayer();
 					if ($player !== null) {
-						foreach ($this->getCommandManager()->getCommands() as $command) {
+						foreach ($this->commandManager->getCommands() as $command) {
 							if (($arg = $command->getCommandArg()) !== null && ($command = $packet->commandData[strtolower($command->getName())] ?? null) !== null) {
 								$command->name = $command->getName();
 								$command->description = $command->getDescription();
@@ -47,10 +47,5 @@ final class CommandListener implements Listener
 				}
 			}
 		}
-	}
-
-	private function getCommandManager(): CommandManager
-	{
-		return $this->commandManager;
 	}
 }

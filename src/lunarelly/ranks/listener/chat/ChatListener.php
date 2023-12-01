@@ -28,10 +28,10 @@ use pocketmine\utils\TextFormat;
 
 final class ChatListener implements Listener
 {
-	private int $localChatDistance = 0;
-	private string $globalSymbol = "";
-	private string $localPrefix = "";
-	private string $globalPrefix = "";
+	private readonly int $localChatDistance;
+	private readonly string $globalSymbol;
+	private readonly string $localPrefix;
+	private readonly string $globalPrefix;
 
 	public function __construct(private readonly LunarRanks $plugin)
 	{
@@ -44,41 +44,16 @@ final class ChatListener implements Listener
 		}
 	}
 
-	private function getPlugin(): LunarRanks
-	{
-		return $this->plugin;
-	}
-
-	private function getLocalChatDistance(): int
-	{
-		return $this->localChatDistance;
-	}
-
-	private function getGlobalSymbol(): string
-	{
-		return $this->globalSymbol;
-	}
-
-	private function getLocalPrefix(): string
-	{
-		return $this->localPrefix;
-	}
-
-	private function getGlobalPrefix(): string
-	{
-		return $this->globalPrefix;
-	}
-
 	/** @noinspection PhpUnused */
 	public function handlePlayerJoin(PlayerJoinEvent $event): void
 	{
-		$this->getPlugin()->updateNameTag($event->getPlayer());
+		$this->plugin->updateNameTag($event->getPlayer());
 	}
 
 	/** @noinspection PhpUnused */
 	public function handleRankChange(PlayerRankChangeEvent $event): void
 	{
-		$this->getPlugin()->updateNameTag($event->getPlayer());
+		$this->plugin->updateNameTag($event->getPlayer());
 	}
 
 	private function formatChat(Player $player, string $message, ChatType $type = ChatType::Default): string
@@ -87,17 +62,17 @@ final class ChatListener implements Listener
 			ChatType::Default => str_replace(
 				["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
 				[$player->getName(), $player->getDisplayName(), TextFormat::clean($message)],
-				$this->getPlugin()->getRank($player)->getChatFormat()
+				$this->plugin->getRank($player)->getChatFormat()
 			),
-			ChatType::Local => $this->getLocalPrefix() . " " . str_replace(
+			ChatType::Local => $this->localPrefix . " " . str_replace(
 					["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
 					[$player->getName(), $player->getDisplayName(), TextFormat::clean($message)],
-					$this->getPlugin()->getRank($player)->getChatFormat()
+					$this->plugin->getRank($player)->getChatFormat()
 				),
-			ChatType::Global => $this->getGlobalPrefix() . " " . str_replace(
+			ChatType::Global => $this->globalPrefix . " " . str_replace(
 					["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
-					[$player->getName(), $player->getDisplayName(), TextFormat::clean(str_replace($this->getGlobalSymbol(), "", $message))],
-					$this->getPlugin()->getRank($player)->getChatFormat()
+					[$player->getName(), $player->getDisplayName(), TextFormat::clean(str_replace($this->globalSymbol, "", $message))],
+					$this->plugin->getRank($player)->getChatFormat()
 				)
 		};
 	}
@@ -108,22 +83,24 @@ final class ChatListener implements Listener
 	 */
 	public function handlePlayerChat(PlayerChatEvent $event): void
 	{
+		if ($event->isCancelled()) {
+			return;
+		}
+
 		$player = $event->getPlayer();
-		$plugin = $this->getPlugin();
 		$message = trim($event->getMessage());
 		$recipients = $event->getRecipients();
-
 		$event->cancel();
-		if ($plugin->isLocalChatEnabled()) {
-			if ($message === $this->getGlobalSymbol()) {
+		if ($this->plugin->isLocalChatEnabled()) {
+			if ($message === $this->globalSymbol) {
 				return;
 			}
 
-			if ($message[0] !== $this->getGlobalSymbol()) {
+			if ($message[0] !== $this->globalSymbol) {
 				foreach ($recipients as $recipient) {
 					$localFormat = $this->formatChat($player, $message, ChatType::Local);
 					if ($recipient instanceof Player) {
-						if ($recipient->getWorld() === $player->getWorld() && $recipient->getLocation()->distance($player->getPosition()) <= $this->getLocalChatDistance()) {
+						if ($recipient->getWorld() === $player->getWorld() && $recipient->getLocation()->distance($player->getPosition()) <= $this->localChatDistance) {
 							$recipient->sendMessage($localFormat);
 						}
 					} elseif ($recipient instanceof BroadcastLoggerForwarder) {

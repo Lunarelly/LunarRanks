@@ -19,6 +19,8 @@ namespace lunarelly\ranks\object;
 
 class Rank
 {
+	private readonly string $coloredName;
+
 	public function __construct(
 		private readonly string $name,
 		private readonly int $priority,
@@ -27,7 +29,9 @@ class Rank
 		private readonly string $chatFormat,
 		private readonly string $nameTag,
 		private readonly array $permissions
-	) {}
+	) {
+		$this->coloredName = $this->color . $this->displayName;
+	}
 
 	public function getName(): string
 	{
@@ -47,6 +51,11 @@ class Rank
 	public function getDisplayName(): string
 	{
 		return $this->displayName;
+	}
+
+	public function getColoredName(): string
+	{
+		return $this->coloredName;
 	}
 
 	public function getChatFormat(): string
