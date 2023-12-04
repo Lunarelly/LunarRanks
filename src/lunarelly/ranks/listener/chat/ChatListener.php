@@ -65,15 +65,15 @@ final class ChatListener implements Listener
 				$this->plugin->getRank($player)->getChatFormat()
 			),
 			ChatType::Local => $this->localPrefix . " " . str_replace(
-					["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
-					[$player->getName(), $player->getDisplayName(), TextFormat::clean($message)],
-					$this->plugin->getRank($player)->getChatFormat()
-				),
+				["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
+				[$player->getName(), $player->getDisplayName(), TextFormat::clean($message)],
+				$this->plugin->getRank($player)->getChatFormat()
+			),
 			ChatType::Global => $this->globalPrefix . " " . str_replace(
-					["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
-					[$player->getName(), $player->getDisplayName(), TextFormat::clean(substr($message, 1))],
-					$this->plugin->getRank($player)->getChatFormat()
-				)
+				["{NAME}", "{DISPLAY_NAME}", "{MESSAGE}"],
+				[$player->getName(), $player->getDisplayName(), TextFormat::clean(substr($message, 1))],
+				$this->plugin->getRank($player)->getChatFormat()
+			)
 		};
 	}
 

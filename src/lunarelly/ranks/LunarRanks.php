@@ -353,13 +353,10 @@ final class LunarRanks extends PluginBase
 	}
 
 	/** @internal */
-	public function getAttachment(Player $player): PermissionAttachment
+	public function getAttachment(Player $player): ?PermissionAttachment
 	{
 		$nickname = strtolower($player->getName());
-		if (!(isset($this->attachments[$nickname]))) {
-			throw new RanksException(sprintf("Player '%s' has no PermissionAttachment?", $nickname));
-		}
-		return $this->attachments[$nickname];
+		return !(isset($this->attachments[$nickname])) ? null : $this->attachments[$nickname];
 	}
 
 	/** @internal */
@@ -380,7 +377,9 @@ final class LunarRanks extends PluginBase
 	public function updatePermissions(Player $player): void
 	{
 		$attachment = $this->getAttachment($player);
-
+		if ($attachment === null) {
+			return;
+		}
 		$attachment->clearPermissions();
 		foreach ($this->getRank($player)->getPermissions() as $permission) {
 			if ($permission === "*") {

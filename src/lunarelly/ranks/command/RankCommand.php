@@ -170,7 +170,7 @@ final class RankCommand extends ExtendedCommand implements PluginOwned
 				}
 
 				if ($playerRank === $rank) {
-					$sender->sendMessage(str_replace(["{PLAYER}", "{RANK}"], [$nickname, $rankDisplay], $messages["player"]["player-already-have-that-rank"]));
+					$sender->sendMessage(str_replace(["{PLAYER}", "{RANK}"], [$nickname, $rankDisplay], $messages["console"]["player-already-have-that-rank"]));
 					return false;
 				}
 
